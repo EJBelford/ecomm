@@ -8,7 +8,8 @@
 //
 // Section 26: E-Commerce App
 //         27: Design a Custon Database
-// Lesson: 362
+//         28: Production-Grade Authentication
+// Lesson: 383
 //
 //--*----1----*----2----*----3----*----4----*----5----*----6----*----7----*----8
 // NOTES: 
@@ -20,6 +21,7 @@
 // npm install chalk@4.1.2
 // npm install express
 // npm install nodemon
+// npm install cookie-session
 //
 // clear && npm run dev
 // To stop: <CRTL>-C
@@ -27,9 +29,11 @@
 // http://localhost:3000/
 //
 //--*----|----*----|----*----|----*----|----*----|----*----|----*----|----*----/
-const bodyParser = require('body-parser');
-const chalk      = require('chalk');
-const express    = require('express');
+const bodyParser    = require('body-parser');
+const chalk         = require('chalk');
+const cookieSession = require('cookie-session');
+const express       = require('express');
+const users = require('./repositories/users');
 
 const usersRepo = require('./repositories/users');
 
@@ -40,6 +44,9 @@ const err     = 0;
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieSession({
+    keys: ['nfdvaw3e4rfdqvafnv399d']
+}));
 
 if (debug > 0) {
     console.log(chalk.yellow('DEBUG: ') + 'Hi there from ' + prjctNm + '!');
@@ -54,10 +61,11 @@ if (debug > 0) {
 
 // Router  
 
-app.get('/', (req, res) => {
+app.get('/signup', (req, res) => {
     // res.send('Hi theres from ' + prjctNm + ' server!');
     res.send(`
         <div>
+            Your ID is: ${req.session.userId}
             <form method="POST">
                 <input name="email" placeholder="email" />
                 <input name="password" placeholder="password" />
@@ -92,7 +100,7 @@ app.get('/', (req, res) => {
     };
 }; */
 
-app.post('/', async (req, res) => {
+app.post('/signup', async (req, res) => {
     // console.log(req.body);
     const { email, password, passwordConfirmation } = req.body;
 
@@ -105,7 +113,51 @@ app.post('/', async (req, res) => {
         return res.send('Passwords most match.');
     }
 
+    const user = await usersRepo.create( { email: email, password: password } );
+
+    req.session.userId = user.id; 
+
     res.send('Account created!');
+});
+
+app.get('/signout', (req, res) => {
+    req.session = null;
+    res.send('You are logged out.');
+});
+
+app.get('/signin', (req, res) => {
+    res.send(`
+        <div>
+            <form method="POST">
+                <input name="email" placeholder="email" />
+                <input name="password" placeholder="password" />
+                <button>Sign In</button>
+            </form>
+        </div>
+    `);
+});
+
+app.post('/signin', async (req, res) => {
+    const { email, password } = req.body;
+
+    const user = await usersRepo.getOneBy({ email: email });
+
+    if (!user) { 
+        return res.send('Email not found');
+    };
+
+    const validPassword = await usersRepo.comparePasswords(
+        user.password,
+        password
+    );
+
+    if (!validPassword) {
+        return res.send('Invalid password');
+    };
+
+    req.session.userId = user.id;
+
+    res.send('You are signed in!');
 });
 
 app.listen(3000, ()=> {
