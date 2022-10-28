@@ -10,7 +10,9 @@
 //         27: Design a Custon Database
 //         28: Production-Grade Authentication
 //         29: Structuring Javascript Projects
-// Lesson: 398
+//         30: Image ans File Upload
+//         31: Building a Shopping Cart
+// Lesson: 416
 //
 //--*----1----*----2----*----3----*----4----*----5----*----6----*----7----*----8
 // NOTES: 
@@ -28,19 +30,25 @@
 // npm install nodemon
 // npm install cookie-session
 // npm install express-validator
+// npm install multer
 //
 // clear && npm run dev
 // To stop: <CRTL>-C
+// [nodemon] to restart at any time, enter `rs`
+//
+// sudo lsof -i :3000
+// kill -9 9012
 //
 // http://localhost:3000/
 //
 //--*----|----*----|----*----|----*----|----*----|----*----|----*----|----*----/
-const bodyParser    = require('body-parser');
-const chalk         = require('chalk');
-const cookieSession = require('cookie-session');
-const express       = require('express');
+const bodyParser     = require('body-parser');
+const chalk          = require('chalk');
+const cookieSession  = require('cookie-session');
+const express        = require('express');
 
-const authRouter    = require('./routes/admin/auth');
+const authRouter     = require('./routes/admin/auth');
+const productsRouter = require('./routes/admin/products');
 
 const prjctNm = "eComm"
 const debug   = 1;    // 0: Off   1: On
@@ -48,6 +56,7 @@ const err     = 0;
 
 const app = express();
 
+app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
     cookieSession({
@@ -55,6 +64,7 @@ app.use(
     })
 );
 app.use(authRouter);
+app.use(productsRouter);
 
 if (debug > 0) {
     console.log(chalk.yellow('DEBUG: ') + 'Hi there from ' + prjctNm + '!');
