@@ -1,5 +1,6 @@
-const fs     = require('fs');
+const chalk          = require('chalk');
 const crypto = require('crypto');
+const fs     = require('fs');
 
 module.exports = class Repository {
     constructor(filename) {
@@ -27,6 +28,7 @@ module.exports = class Repository {
     };
 
     async getAll() {
+        console.log(chalk.yellow('DEBUG: REPO: getAll: '));
         // Open the file referenced by <this.filename>
         // Read the file contents 
         // Parse the contents
@@ -51,11 +53,12 @@ module.exports = class Repository {
     };
 
     async getOne(id) {
+        console.log(chalk.yellow('DEBUG: REPO: getOne: ') + id);
         const records = await this.getAll();
         return records.find(record => record.id === id);
-    };
-
-    async delete(id) {
+      }
+    
+   async delete(id) {
         const records = await this.getAll();
         const filteredRecords = records.filter(record => record.id !== id);
         await this.writeAll(filteredRecords);

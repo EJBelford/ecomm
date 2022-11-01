@@ -12,7 +12,7 @@
 //         29: Structuring Javascript Projects
 //         30: Image ans File Upload
 //         31: Building a Shopping Cart
-// Lesson: 416
+// Lesson: 433
 //
 //--*----1----*----2----*----3----*----4----*----5----*----6----*----7----*----8
 // NOTES: 
@@ -32,7 +32,7 @@
 // npm install express-validator
 // npm install multer
 //
-// clear && npm run dev
+// clear && date && npm run dev
 // To stop: <CRTL>-C
 // [nodemon] to restart at any time, enter `rs`
 //
