@@ -3,12 +3,13 @@ const express               = require('express');
 // const { validationResult } = require('express-validator');
 const multer                = require('multer');
 
-const { handleErrors, requireAuth }      = require('./middlewares');
+const { handleErrors, requireAuth }  = require('./middlewares');
+const { requireTitle, requirePrice } = require('./validators');
+
 const productsRepo          = require('../../repositories/products');
 const productsNewTemplate   = require('../../views/admin/products/new');
 const productsIndexTemplate = require('../../views/admin/products/index');
 const productsEditTemplate  = require('../../views/admin/products/edit');
-const { requireTitle, requirePrice } = require('./validators');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -30,20 +31,15 @@ router.post(
   handleErrors(productsNewTemplate),
   async (req, res) => {
     /* const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
         return res.send(productsNewTemplate({ errors }));
     }; */
-
     // console.log(errors);
     // console.log(req.body);
-
     /* req.on('data', data => {
         console.log(data.toString());
     }); */
-
     // console.log(req.file.buffer.toString('base64'));
-    
     const image = req.file.buffer.toString('base64');
     const { title, price } = req.body;
     await productsRepo.create({ title, price, image });
@@ -53,13 +49,9 @@ router.post(
   }
 );
 
-router.get('/admin/products/edit', async (req, res) => {
-    console.log(chalk.yellow('DEBUG: Products: getOne: '));
-    const product = await productsRepo.getOne('227cc314');
-    res.send(productsEditTemplate({ product }));
-});
-
-router.get('/admin/products/:id/edit', 
+router.get(
+    '/admin/products/edit', 
+    // '/admin/products/:id/edit', 
     requireAuth, 
     async (req, res) => {
         console.log(chalk.yellow('DEBUG: Products: getOne: ') + req.params.id);
@@ -72,11 +64,15 @@ router.get('/admin/products/:id/edit',
         res.send(productsEditTemplate({ product }));
 });
 
-router.post('/admin/products/:id/edit', 
+router.post(
+    '/admin/products/:id/edit', 
     requireAuth, 
     upload.single('image'),
     [requireTitle, requirePrice],
-    handleErrors(productsEditTemplate),
+    handleErrors(productsEditTemplate, async (req) => {
+        const product = await productsRepo.getOne(req.params.id);
+        return { product: product };
+    }),
     async (req, res) => {
         const changes = req.body;
 
@@ -91,6 +87,17 @@ router.post('/admin/products/:id/edit',
         };
 
         res.redirect('admin/products');
+});
+
+router.post(
+    '/admin/products/:id/delete', 
+    requireAuth, 
+    [requireTitle, requirePrice], 
+    async (req, res) => {
+        console.log(chalk.yellow('DEBUG: Products: delete: ') + req.params.id);
+        await products.delete(req.params.id);
+
+        res.redirect('/admin/products');
 });
 
 module.exports = router;
