@@ -10,15 +10,15 @@ module.exports = ({ products }) => {
         <td>${product.title}</td>
         <td>${product.price}</td>
         <td>
-          <!-- <a href="/admim/products/edit"> -->
-          <a href="/admim/products/${product.id}/edit"> 
+          <!-- <a href="/admin/products/edit"> -->
+          <a href="/admin/products/edit/${product.id}"> 
             <button class="button is-link">
               Edit
             </button>
           </a>
         </td>
         <td>
-          <form method="POST" actio="/admin/products/${product.id}/delete">
+          <form method="POST" action="/admin/products/delete/${product.id}">
             <button class="button is-danger">Delete</button>
           </form>
         </td>

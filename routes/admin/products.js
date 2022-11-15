@@ -30,29 +30,17 @@ router.post(
   [requireTitle, requirePrice],
   handleErrors(productsNewTemplate),
   async (req, res) => {
-    /* const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.send(productsNewTemplate({ errors }));
-    }; */
-    // console.log(errors);
-    // console.log(req.body);
-    /* req.on('data', data => {
-        console.log(data.toString());
-    }); */
-    // console.log(req.file.buffer.toString('base64'));
     const image = req.file.buffer.toString('base64');
     const { title, price } = req.body;
     await productsRepo.create({ title, price, image });
     
-    // res.send('Submitted!');
     res.redirect('/admin/products');
   }
 );
 
 router.get(
     '/admin/products/edit', 
-    // '/admin/products/:id/edit', 
-    requireAuth, 
+    requireAuth,     
     async (req, res) => {
         console.log(chalk.yellow('DEBUG: Products: getOne: ') + req.params.id);
         const product = await productsRepo.getOne(req.params.id);
@@ -65,15 +53,16 @@ router.get(
 });
 
 router.post(
-    '/admin/products/:id/edit', 
+    '/admin/products/edit/:id', 
     requireAuth, 
     upload.single('image'),
     [requireTitle, requirePrice],
     handleErrors(productsEditTemplate, async (req) => {
         const product = await productsRepo.getOne(req.params.id);
-        return { product: product };
+        return { product };
     }),
     async (req, res) => {
+        console.log(chalk.yellow('DEBUG: Products: edit: ') + req.params.id);
         const changes = req.body;
 
         if (req.file) {
@@ -87,17 +76,23 @@ router.post(
         };
 
         res.redirect('admin/products');
-});
+    }
+);
 
 router.post(
-    '/admin/products/:id/delete', 
+    '/admin/products/delete/:id', 
     requireAuth, 
     [requireTitle, requirePrice], 
     async (req, res) => {
         console.log(chalk.yellow('DEBUG: Products: delete: ') + req.params.id);
-        await products.delete(req.params.id);
+        try {
+            await products.delete(req.params.id); 
+        } catch(err) {
+            return res.send('Could not find item! ' + req.params.id);
+        }
 
         res.redirect('/admin/products');
-});
+    }
+);
 
 module.exports = router;

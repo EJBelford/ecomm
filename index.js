@@ -17,8 +17,7 @@
 //--*----1----*----2----*----3----*----4----*----5----*----6----*----7----*----8
 // NOTES: 
 //------------------------------------------------------------------------------
-// 
-// 
+
 // apt list --upgradable
 // sudo apt upgrade
 
@@ -48,15 +47,16 @@
 // killall node
 
 // http://localhost:3000/
-//
+
 //--*----|----*----|----*----|----*----|----*----|----*----|----*----|----*----/
 const bodyParser     = require('body-parser');
 const chalk          = require('chalk');
 const cookieSession  = require('cookie-session');
 const express        = require('express');
 
-const authRouter     = require('./routes/admin/auth');
-const productsRouter = require('./routes/admin/products');
+const authRouter          = require('./routes/admin/auth');
+const adminProductsRouter = require('./routes/admin/products');
+const productsRouter      = require('./routes/products');
 
 const prjctNm = "eComm"
 const debug   = 1;    // 0: Off   1: On
@@ -72,6 +72,7 @@ app.use(
     })
 );
 app.use(authRouter);
+app.use(adminProductsRouter);
 app.use(productsRouter);
 
 if (debug > 0) {
