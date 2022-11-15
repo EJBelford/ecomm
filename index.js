@@ -57,6 +57,7 @@ const express        = require('express');
 const authRouter          = require('./routes/admin/auth');
 const adminProductsRouter = require('./routes/admin/products');
 const productsRouter      = require('./routes/products');
+const cartsRouter         = require('./routes/carts');
 
 const prjctNm = "eComm"
 const debug   = 1;    // 0: Off   1: On
@@ -73,6 +74,7 @@ app.use(
 );
 app.use(authRouter);
 app.use(adminProductsRouter);
+app.use(cartsRouter);
 app.use(productsRouter);
 
 if (debug > 0) {
